@@ -20,4 +20,4 @@ TACC LS6 User Guide: https://docs.tacc.utexas.edu/hpc/lonestar6/
 git clone https://github.com/yuho-yuho/gitm_default.git
 ```
 
-$J_{Horizontal}$
+$J_{Horizontal} = \sigma_{P} (E + U \cross B) + \sigma_{H} b \cross (E + U \cross B)$

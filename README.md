@@ -21,11 +21,11 @@ git clone https://github.com/yuho-yuho/gitm_default.git
 ```
 
 $$
-J_{Horizontal} = \sigma_{P} (E + U x B) + \sigma_{H} b \cross (E + U x B)
+J_{Horizontal} = \sigma_{P} (E + U x B) + \sigma_{H} b \times (E + U x B)
 $$
 
 and,
 
 $$
-J_{Para} = - \frac{1}{sin I} \sigma_{P} (E + U x B) + \sigma_{H} b \cross (E + U x B)
+J_{Para} = - \frac{1}{sin I} \sigma_{P} (E + U x B) + \sigma_{H} b \times (E + U x B)
 $$

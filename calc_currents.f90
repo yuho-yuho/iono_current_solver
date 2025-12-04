@@ -26,6 +26,11 @@ subroutine calc_currents(iBlock)
   !     EFlux3Dtmp
   !real, dimension(-1:nLons+2, -1:nLats+2, -1:nAlts+2, 3   ) ::           &
   !     EFluxG
+  !Hall and Pedersen current arrays (separated components), yuhong, 12/03/2025
+  real, dimension(-1:nLons+2, -1:nLats+2, -1:nAlts+2, 3) ::           &
+       J3DPed, J3DHall
+  real, dimension(-1:nLons+2, -1:nLats+2, 3) ::           &
+       J2DPed, J2DHall
 
   !---------------------------------------------------------------------------
 
@@ -83,16 +88,34 @@ subroutine calc_currents(iBlock)
   !
   J3D(:,:,:,:)=0.0
   J2D(:,:,:)=0.0
+  ! add splited currents, yuhong, 12/03/2025
+  J3DPed(:,:,:,:)=0.0
+  J3DHall(:,:,:,:)=0.0
+  J2DPed(:,:,:)=0.0
+  J2DHall(:,:,:)=0.0
   do iDir = 1, 3
      do iLat = -1, nLats+2
      do iLon = -1, nLons+2
      do iAlt = -1, nAlts+2
+        !Pedersen current component, yuhong, 12/03/2025
+        J3DPed(iLon,iLat,iAlt,iDir) = &
+             Sigma_Pedersen(iLon,iLat,iAlt)*Eperp(iLon,iLat,iAlt,iDir)
+        !Hall current component, yuhong, 12/03/2025
+        J3DHall(iLon,iLat,iAlt,iDir) = &
+             -Sigma_Hall(iLon,iLat,iAlt)*EperpCrossBunit(iLon,iLat,iAlt,iDir)
+        !Total current, yuhong, 12/03/2025
         J3D(iLon,iLat,iAlt,iDir) = &
-             Sigma_Pedersen(iLon,iLat,iAlt)*Eperp(iLon,iLat,iAlt,iDir)-&
-             Sigma_Hall(iLon,iLat,iAlt)*EperpCrossBunit(iLon,iLat,iAlt,iDir)!+&
-             !Sigma_0(iLon,iLat,iAlt)*Epara(iLon,iLat,iAlt,iDir)
-        !J2D
+             J3DPed(iLon,iLat,iAlt,iDir) + J3DHall(iLon,iLat,iAlt,iDir)
+        !J2D (vertically integrated currents), yuhong, 12/03/2025
         if (iAlt >= 2 .and. iAlt <= nAlts-1) then 
+           J2DPed(iLon,iLat,iDir)=J2DPed(iLon,iLat,iDir) + &
+                J3DPed(iLon,iLat,iAlt,iDir)* &
+                ( Altitude_GB(iLon,iLat,iAlt+1,iBlock) - &
+                Altitude_GB(iLon,iLat,iAlt-1,iBlock) )/2.0
+           J2DHall(iLon,iLat,iDir)=J2DHall(iLon,iLat,iDir) + &
+                J3DHall(iLon,iLat,iAlt,iDir)* &
+                ( Altitude_GB(iLon,iLat,iAlt+1,iBlock) - &
+                Altitude_GB(iLon,iLat,iAlt-1,iBlock) )/2.0
            J2D(iLon,iLat,iDir)=J2D(iLon,iLat,iDir) + &
                 J3D(iLon,iLat,iAlt,iDir)* &
                 ( Altitude_GB(iLon,iLat,iAlt+1,iBlock) - &
@@ -148,6 +171,12 @@ subroutine calc_currents(iBlock)
   JpSWMF(:,:)=(1.0)/sin( DipAngle(:,:,nAlts,iBlock) )* &
        JrSWMF(:,:)
   !
+     ! Copy Pedersen/Hall components (Total) into module public arrays for output/inspection
+     J3DPedOut(:,:,:,:) = J3DPed(:,:,:,:)
+     J3DHallOut(:,:,:,:) = J3DHall(:,:,:,:)
+     J2DPedOut(:,:,:)    = J2DPed(:,:,:)
+     J2DHallOut(:,:,:)   = J2DHall(:,:,:)
+
   !------------------------------Total-------------------------
   !
   !

@@ -39,6 +39,15 @@ module ModCurrents
   real, dimension(-1:nLons+2, -1:nLats+2, -1:nAlts+2, 3) :: &
        J2D3D,J2D3DUcB,J2D3DEF
 
+  !--- Separate Pedersen and Hall components (3D and height-integrated), yuhong, 12/03/2025 ---
+  !3D Pedersen and Hall current densities (A/m^2)
+  real, dimension(-1:nLons+2, -1:nLats+2, -1:nAlts+2, 3) :: &
+       J3DPedOut, J3DHallOut
+  !Height-integrated Pedersen and Hall currents (A/m)
+  real, dimension(-1:nLons+2, -1:nLats+2, 3) :: &
+       J2DPedOut, J2DHallOut
+  !---------------------------------------------------------------------------------------------
+  
   !Field-aligned Currents, in nuA/m2=1e-6 A/m2
   !Refer to ionos_ch5 of OuluSpaceWiki or Lu1995
   !Jparallel=Jp
